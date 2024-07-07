@@ -37,18 +37,3 @@ class EmailManager():
         message = f"Here's your forgot password {otp}"
         response = self.send_mail(subject, message)
         return response
-        
-# message = Mail(
-#     from_email='devtest2yn@gmail.com',
-#     to_emails='mickdaniels101@gmail.com',
-#     subject='Sending with Twilio SendGrid is Fun',
-#     html_content='<strong>and easy to do anywhere, even with Python</strong>')
-    
-# try:
-#     sg = SendGridAPIClient('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')
-#     # response = sg.send(message)
-#     # print(response.status_code)
-#     # print(response.body)
-#     # print(response.headers)
-# except Exception as e:
-#     print(e, '////')
