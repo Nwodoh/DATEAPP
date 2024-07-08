@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, session, request
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError
 from email_validator import validate_email, EmailNotValidError
 from app import db
 from config import Config
 from models.User import User
-from utils.helpers import set_err_args, assign_res, fromIsoStr
+from utils.helpers import set_err_args, assign_res, fromIsoStr, haversine
 from utils.ImageManager import ImageManager
 
 user = Blueprint('user', __name__)
@@ -49,6 +50,58 @@ def update_me():
         err_message, err_code = set_err_args(err.args)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
 
-@user.route('/', methods=['POST'])
-def around_me():
-    pass
+@user.route('/', methods=['GET'])
+@login_required
+def around_point():
+    try:
+        lat = request.args.get('lat')
+        lon = request.args.get('lon')
+        if not (lat and lon): raise Exception('Invalid latitude or longitude.', 400)
+        lat = int(lat)
+        lon = int(lon)
+        nearby_users = []
+
+        users = User.query.all()
+        for user in users:
+            user_location = user.get_location()
+            if not user_location or len(user_location) != 2: continue
+            user_lat = user_location[0]
+            user_lon = user_location[1]
+            
+            if not (type(user_lat) == float or type(user_lat) == int): continue
+            if not (type(user_lon) == float or type(user_lon)) == int: continue
+
+            distance = haversine(user_lat, user_lon, lat, lon)
+            print(distance)
+
+            if distance <= 1000:
+                nearby_users.append(user.to_dict())
+
+        return jsonify({**assign_res(), 'users': nearby_users})
+    except Exception as err:
+        err_message, err_code = set_err_args(err.args)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+
+
+@user.route('/like/<other_user_id>', methods=['POST'])
+@login_required
+def like(other_user_id):
+    try: 
+        other_user_id = int(other_user_id)
+        if not other_user_id: raise Exception('No user to like was specified.', 400)
+        if other_user_id == current_user.id: raise Exception('You can not like you own profile', 403)
+
+        other_user = User.query.get(other_user_id)
+        if not other_user: raise Exception('user to like was not found in our database.', 404)
+        current_user.liked_users.append(other_user)
+        
+        db.session.commit()
+        return {**assign_res(), 'otherUser': other_user.to_dict()}
+    except IntegrityError as err:
+        err_message, err_code = ('You already liked this user.', 403)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+    except Exception as err:
+        err_message, err_code = set_err_args(err.args)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+
+# https://sqlitebrowser.org/dl/

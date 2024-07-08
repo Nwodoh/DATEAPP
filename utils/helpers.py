@@ -1,6 +1,18 @@
+import math
 import random
 import string
 from datetime import datetime, timedelta, timezone, date
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0  # Earth radius in kilometers
+
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    distance = R * c
+    return distance
 
 def generate_otp(length:int=6) -> str:
     digits = string.digits # 0123456789 in a string
@@ -27,3 +39,5 @@ def is_future_date(dt:datetime) -> bool:
 def fromIsoStr(date_str:str):
     if not date_str: raise Exception('Invalid Date String.', 403)
     return date.fromisoformat(date_str)
+
+# print(haversine(6.45407, 3.39467,  40.730610, -73.935242))

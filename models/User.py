@@ -1,27 +1,40 @@
 import json
 from flask_login import UserMixin
+from sqlalchemy import Enum, UniqueConstraint, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy import Enum, UniqueConstraint, CheckConstraint
 from app import db
 from config import Config
+
+like_association = db.Table(
+    'likes',
+    db.Column('liker_id', db.Integer, ForeignKey('users.id')),
+    db.Column('liked_id', db.Integer, ForeignKey('users.id')),
+    UniqueConstraint('liker_id', 'liked_id', name='unique_likes')
+)
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key = True)
-    email = db.Column(db.String(120), unique = True, nullable=False)
+    email = db.Column(db.String(120), unique = True, nullable=False, default='')
     password = db.Column(db.String(25), nullable = False, default='')
-    name = db.Column(db.String(2))
-    username = db.Column(db.String(20), unique=True)
-    image_urls = db.Column(db.String, nullable=True)
-    date_of_birth = db.Column(db.Date)
+    name = db.Column(db.String(2), default='')
+    username = db.Column(db.String(20), unique=True, default='')
+    image_urls = db.Column(db.String, nullable=True, default='[]')
+    date_of_birth = db.Column(db.Date, default='')
     gender = db.Column(Enum(*Config.GENDER_ENUM, name='gender_enum'))
-    about = db.String(db.String(300))
+    about = db.Column(db.String(300))
     orientation = db.Column(Enum(*Config.ORIENTATIONS, name='orientation_enum'))
-    interests = db.Column(db.String)
-    location = db.Column(db.String)
+    interests = db.Column(db.String, default='[]')
+    location = db.Column(db.String, default='')
     has_details = db.Column(db.Boolean, nullable=False, default=False)
 
-    # likes = relationship('Like', back_populates='user')
+    liked_users = relationship(
+        'User',
+        secondary=like_association,
+        primaryjoin=id == like_association.c.liker_id,
+        secondaryjoin=id == like_association.c.liked_id,
+        backref='likes'
+    )
 
     def __repr__(self):
         return f'Person with email: {self.email} and with password: {self.password}'
@@ -56,7 +69,28 @@ class User(db.Model, UserMixin):
         self.location = json.dumps(location)
 
     def get_image_urls(self):
-        return json.loads(self.image_urls)
+        return json.loads(self.image_urls or '[]')
+
+    def get_interests(self):
+        return json.loads(self.interests or '[]')
+
+    def get_location(self):
+        return json.loads(self.location or '[]')
+
+    def to_dict(self):
+        print('self: ', self.get_image_urls())
+        return {
+        'id': self.id,
+        'name': self.name,
+        'username': self.username,
+        'image_urls': self.get_image_urls(),
+        'date_of_birth': self.date_of_birth,
+        'gender': self.gender,
+        'about': self.about,
+        'orientation': self.orientation,
+        'interests': self.get_interests(),
+        'location': self.get_location(),
+        }
 
     __table_args__ = (
         UniqueConstraint('username', name='uix_user_username'),
