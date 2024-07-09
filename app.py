@@ -17,13 +17,13 @@ def create_app():
     # from chat import chat
     from routes.auth import auth
     from routes.user import user
+    from routes.chat import chat
 
     app.register_blueprint(auth, url_prefix='/api/v1/auth')
     app.register_blueprint(user, url_prefix='/api/v1/user')
+    app.register_blueprint(chat, url_prefix='/api/v1/chat')
 
     from models.User import User
-
-    # create_database(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)

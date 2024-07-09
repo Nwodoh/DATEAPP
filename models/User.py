@@ -76,9 +76,8 @@ class User(db.Model, UserMixin):
 
     def get_location(self):
         return json.loads(self.location or '[]')
-
+    
     def to_dict(self):
-        print('self: ', self.get_image_urls())
         return {
         'id': self.id,
         'name': self.name,

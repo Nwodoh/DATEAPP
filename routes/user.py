@@ -98,7 +98,7 @@ def like(other_user_id):
         db.session.commit()
         return {**assign_res(), 'otherUser': other_user.to_dict()}
     except IntegrityError as err:
-        err_message, err_code = ('You already liked this user.', 403)
+        err_message, err_code = ('You already liked this user.', 400)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
     except Exception as err:
         err_message, err_code = set_err_args(err.args)
