@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 auth = Blueprint('auth', __name__)
 
 otp_type_list = ['signup', 'reset_password']
-@auth.route('/otp/<otp_type>', methods=['GET'])
+@auth.route('/otp/<otp_type>', methods=['POST'])
 def get_otp(otp_type):
     try:
         email = request.json.get('email')
@@ -19,10 +19,11 @@ def get_otp(otp_type):
         email = valid.email
         if not (otp_type in otp_type_list): return jsonify({**assign_res('error'), "message": "Invalid otp URL"}), 400
         otp = generate_otp()
-        expires_at = set_time_from_now()
+        expires_at = set_time_from_now(20)
         otp_str = f'{otp_type}_{email}_otp'
+        print('otp_str: ', otp_str)
         session[otp_str] = (otp, expires_at)
-        print(otp, expires_at)
+        print(session[otp_str])
         user = User.query.filter_by(email = email).first()
         mail =  EmailManager(email_to=email, payload=otp, user=user)
         if otp_type == otp_type_list[0]: 
@@ -48,8 +49,9 @@ def verify_otp(otp_type='signup'):
     email = valid.email
 
     otp_str = f'{otp_type}_{email}_otp'
+    print('otp_str: ', otp_str)
     otp_tuple = session.get(otp_str)
-    print(otp_tuple)
+    print('otp_tuple: ', otp_tuple)
     if not otp_tuple or len(otp_tuple) < 2: raise Exception('OTP not set', 400)
     otp, expires_at = otp_tuple
     if not (otp and expires_at): raise Exception('Invalid otp', 400)
@@ -77,7 +79,7 @@ def signup():
         db.session.commit()
         login_user(user=new_user, remember=True) # Changed: params
 
-        return jsonify({**assign_res(), "message": "Signup Successful."})
+        return jsonify({**assign_res(), "message": "Signup Successful.", "user": new_user.to_dict()})
     except EmailNotValidError:
         return jsonify({**assign_res('error'), 'message': 'Email is Invalid.'}), 400
     except Exception as err:
@@ -91,6 +93,7 @@ def login():
         valid = validate_email(email)
         email = valid.email
         password = request.json.get('password')
+        print(email, password)
 
         user = User.query.filter_by(email = email).first()
         
@@ -99,7 +102,7 @@ def login():
         if not password_is_correct: raise Exception('Incorrect authentification details. Please check you email or password')
 
         login_user(user=user, remember=True)
-        return jsonify({**assign_res(), 'message': 'Login successfull'})
+        return jsonify({**assign_res(), 'message': 'Login successfull', "user": user.to_dict()})
     except EmailNotValidError:
         return jsonify({**assign_res('error'), 'message': 'Email is Invalid.'}), 400
     except Exception as err:
@@ -112,15 +115,19 @@ def logout():
     logout_user()
     return jsonify({**assign_res(), 'message': 'Logout Successful'})
 
-@auth.route('/reset-password', methods=['GET'])
+@auth.route('/reset-password', methods=['POST'])
 def reset_password():
     try:
+        print('here')
         email = request.json.get('email')
+        print(email, '/////')
         if not email: raise EmailNotValidError()
         valid = validate_email(email)
         email = valid.email
         password = request.json.get('password')
+        print(password, '/////')
         password_confirm = request.json.get('passwordConfirm')
+        print(password_confirm, '/////')
         min_pass_len = 4
         max_pass_len = 25
 
@@ -136,7 +143,7 @@ def reset_password():
         db.session.commit()
         login_user(user=user, remember=True)
         
-        return {**assign_res('success'), "message": "Password Reset Successfull."}
+        return {**assign_res('success'), "message": "Password Reset Successfull.", "user": user.to_dict()}
     except EmailNotValidError:
         return jsonify({**assign_res('error'), 'message': 'Email is Invalid.'}), 400
     except Exception as err:

@@ -10,6 +10,11 @@ from utils.ImageManager import ImageManager
 
 user = Blueprint('user', __name__)
 
+@user.route('/me', methods=['GET'])
+@login_required
+def get_me():
+    return jsonify({**assign_res(), 'user': current_user.to_dict()})
+
 @user.route('/', methods=['POST'])
 @login_required
 def update_me():

@@ -24,7 +24,7 @@ def assign_res(res_type:str='success') -> dict:
     return {'status': res_type}
 
 def set_time_from_now(mins:int=10) -> datetime:
-    time_from_now = datetime.now(timezone.utc) + timedelta(minutes=10) # datetime.utcnow() deprecated
+    time_from_now = datetime.now(timezone.utc) + timedelta(minutes=mins) # datetime.utcnow() deprecated
     return time_from_now
 
 def set_err_args(err_args:tuple, default_args:tuple=('Unknown Error', 500)) -> tuple:

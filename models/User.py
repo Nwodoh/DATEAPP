@@ -4,6 +4,7 @@ from sqlalchemy import Enum, UniqueConstraint, CheckConstraint, ForeignKey
 from sqlalchemy.orm import relationship
 from app import db
 from config import Config
+from datetime import datetime
 
 like_association = db.Table(
     'likes',
@@ -18,9 +19,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique = True, nullable=False, default='')
     password = db.Column(db.String(25), nullable = False, default='')
     name = db.Column(db.String(2), default='')
-    username = db.Column(db.String(20), unique=True, default='')
+    username = db.Column(db.String(20), unique=True)
     image_urls = db.Column(db.String, nullable=True, default='[]')
-    date_of_birth = db.Column(db.Date, default='')
+    date_of_birth = db.Column(db.Date)
     gender = db.Column(Enum(*Config.GENDER_ENUM, name='gender_enum'))
     about = db.Column(db.String(300))
     orientation = db.Column(Enum(*Config.ORIENTATIONS, name='orientation_enum'))

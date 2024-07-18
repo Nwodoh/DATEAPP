@@ -15,6 +15,7 @@ class Chat(db.Model):
     def to_dict(self):
         return {
         'id': self.id,
+        'message': self.message,
         'sender': self.sender.to_dict(),
         'receiver': self.receiver.to_dict(),
         "timestamp": self.timestamp
