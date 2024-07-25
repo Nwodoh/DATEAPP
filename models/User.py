@@ -57,7 +57,7 @@ class User(db.Model, UserMixin):
     @staticmethod
     def check_location(location:list=[]):
         if not len(location) or len(location) != 2: raise Exception(f'Invalid location passed {location}.', 400)
-        if not (type(location[0]) is int and type(location[1]) is int): raise Exception('Invalid location passed.', 400)  
+        if not ((type(location[0]) is int or type(location[0]) is float) and (type(location[1]) is int or type(location[1]) is float)): raise Exception('Invalid location passed.', 400)  
         return True
 
     def set_image_urls(self, image_urls:list=[]):
@@ -78,7 +78,7 @@ class User(db.Model, UserMixin):
     def get_location(self):
         return json.loads(self.location or '[]')
     
-    def to_dict(self):
+    def to_dict(self, otherUser=''):
         return {
         'id': self.id,
         'name': self.name,
@@ -90,6 +90,8 @@ class User(db.Model, UserMixin):
         'orientation': self.orientation,
         'interests': self.get_interests(),
         'location': self.get_location(),
+        'likedUsers': [user.id for user in self.liked_users],
+        'likes': [{'id': user.id, 'name': user.name, 'username': user.username, 'image_urls': user.get_image_urls(), 'location': user.get_location()} for user in self.likes]
         }
 
     __table_args__ = (

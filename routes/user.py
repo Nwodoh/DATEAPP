@@ -1,19 +1,27 @@
 from flask import Blueprint, jsonify, session, request
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
-from email_validator import validate_email, EmailNotValidError
+from email_validator import EmailNotValidError
 from app import db
 from config import Config
 from models.User import User
 from utils.helpers import set_err_args, assign_res, fromIsoStr, haversine
-from utils.ImageManager import ImageManager
 
 user = Blueprint('user', __name__)
 
-@user.route('/me', methods=['GET'])
+@user.route('/user/', defaults={'user_id': None}, methods=['GET'])
+@user.route('/user/<int:user_id>', methods=['GET'])
 @login_required
-def get_me():
-    return jsonify({**assign_res(), 'user': current_user.to_dict()})
+def get_me(user_id):
+    try:
+        if not user_id: return jsonify({**assign_res(), 'user': current_user.to_dict()})
+        else: 
+            user = User.query.get(user_id)
+            return jsonify({**assign_res(), 'user': user.to_dict()})
+    except Exception as err:
+        err_message, err_code = set_err_args(err.args)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+
 
 @user.route('/', methods=['POST'])
 @login_required
@@ -22,10 +30,10 @@ def update_me():
         email = current_user.email
         if not email: raise EmailNotValidError()
 
-        img_files = request.files.getlist('images')
-        if len(img_files) > 0:
-            image_urls = ImageManager().save_images(img_files)
-            current_user.set_image_urls(image_urls)
+        # img_files = request.files.getlist('images')
+        # if len(img_files) > 0:
+        #     image_urls = ImageManager().save_images(img_files)
+        #     current_user.set_image_urls(image_urls)
 
         data = request.get_json()
         for key, value in data.items():
@@ -62,8 +70,8 @@ def around_point():
         lat = request.args.get('lat')
         lon = request.args.get('lon')
         if not (lat and lon): raise Exception('Invalid latitude or longitude.', 400)
-        lat = int(lat)
-        lon = int(lon)
+        lat = float(lat)
+        lon = float(lon)
         nearby_users = []
 
         users = User.query.all()
@@ -72,29 +80,26 @@ def around_point():
             if not user_location or len(user_location) != 2: continue
             user_lat = user_location[0]
             user_lon = user_location[1]
-            
+
             if not (type(user_lat) == float or type(user_lat) == int): continue
-            if not (type(user_lon) == float or type(user_lon)) == int: continue
+            if not (type(user_lon) == float or type(user_lon) == int): continue
 
             distance = haversine(user_lat, user_lon, lat, lon)
-            print(distance)
 
-            if distance <= 1000:
+            if distance <= 100000:
                 nearby_users.append(user.to_dict())
 
-        return jsonify({**assign_res(), 'users': nearby_users})
+        return jsonify({**assign_res(), 'users': nearby_users, 'results': len(nearby_users)})
     except Exception as err:
         err_message, err_code = set_err_args(err.args)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
 
 
-@user.route('/like/<other_user_id>', methods=['POST'])
+@user.route('/like/<int:other_user_id>', methods=['POST'])
 @login_required
 def like(other_user_id):
     try: 
-        other_user_id = int(other_user_id)
         if not other_user_id: raise Exception('No user to like was specified.', 400)
-        if other_user_id == current_user.id: raise Exception('You can not like you own profile', 403)
 
         other_user = User.query.get(other_user_id)
         if not other_user: raise Exception('user to like was not found in our database.', 404)
@@ -106,6 +111,27 @@ def like(other_user_id):
         err_message, err_code = ('You already liked this user.', 400)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
     except Exception as err:
+        print(err)
+        err_message, err_code = set_err_args(err.args)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+
+@user.route('/like/<int:other_user_id>', methods=['DELETE'])
+@login_required
+def un_like(other_user_id):
+    try: 
+        if not other_user_id: raise Exception('No user to Unlike was specified.', 400)
+
+        other_user = User.query.get(other_user_id)
+        if not other_user: raise Exception('user to Unlike was not found in our database.', 404)
+        current_user.liked_users.remove(other_user)
+        
+        db.session.commit()
+        return {**assign_res(), 'otherUser': other_user.to_dict()}
+    except IntegrityError as err:
+        err_message, err_code = ('You Haven\'t liked this user.', 400)
+        return jsonify({**assign_res('error'), 'message': err_message}), err_code
+    except Exception as err:
+        print(err)
         err_message, err_code = set_err_args(err.args)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
 

@@ -18,7 +18,7 @@ def get_last_chats(user_id:int):
 def send_chat():
     try: 
         current_user_id = current_user.id
-        receiver_id = int(request.json.get('userId'))
+        receiver_id = int(request.json.get('receiverId'))
         message = request.json.get('message')
 
         if not receiver_id or current_user_id == receiver_id: raise Exception('Invalid receiver id.', 400)
@@ -35,7 +35,7 @@ def send_chat():
         db.session.add(new_chat)
         db.session.commit()
 
-        return jsonify({**assign_res(), "newChat": new_chat.to_dict()})
+        return jsonify({**assign_res(), "newChat": new_chat.to_dict(current_user_id)})
     except Exception as err:
         err_message, err_code = set_err_args(err.args)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
@@ -44,7 +44,7 @@ def send_chat():
 @login_required
 def get_recent_chats():
     try:
-        last_chats = [chat.to_dict() for chat in get_last_chats(current_user.id)]
+        last_chats = [chat.to_dict(current_user.id) for chat in get_last_chats(current_user.id)]
         return jsonify({**assign_res(), "chats": last_chats, "results": len(last_chats)})
     except Exception as err:
         err_message, err_code = set_err_args(err.args)
@@ -61,7 +61,7 @@ def get_chats_with(other_user_id):
             or_(Chat.receiver_id == current_user.id, Chat.receiver_id == other_user_id)
         )).all()
 
-        chats = [chat.to_dict() for chat in chats]
+        chats = [chat.to_dict(current_user.id) for chat in chats]
         return jsonify({**assign_res(), "chats": chats, "results": len(chats)})
     except Exception as err:
         err_message, err_code = set_err_args(err.args)

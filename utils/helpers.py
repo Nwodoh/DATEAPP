@@ -40,4 +40,9 @@ def fromIsoStr(date_str:str):
     if not date_str: raise Exception('Invalid Date String.', 403)
     return date.fromisoformat(date_str)
 
+def get_chat_room_key(user_id:int, other_user_id:int):
+    if user_id <= other_user_id:
+        return f'{user_id}-{other_user_id}'
+    else: return f'{other_user_id}-{user_id}'
+    
 # print(haversine(6.45407, 3.39467,  40.730610, -73.935242))

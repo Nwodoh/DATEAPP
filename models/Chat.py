@@ -12,12 +12,20 @@ class Chat(db.Model):
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_chats')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_chats')
 
-    def to_dict(self):
+    def to_dict(self, current_user_id=''):
+        other_user = None
+        is_sender = False
+        if self.sender_id == current_user_id: other_user = self.receiver.to_dict()
+        elif self.receiver_id == current_user_id: other_user = self.sender.to_dict()
+        if other_user and current_user_id == self.sender_id: is_sender = True
+
         return {
         'id': self.id,
         'message': self.message,
         'sender': self.sender.to_dict(),
         'receiver': self.receiver.to_dict(),
+        "other_user": other_user,
+        "is_sender": is_sender,
         "timestamp": self.timestamp
         }
 

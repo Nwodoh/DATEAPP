@@ -23,7 +23,7 @@ def get_otp(otp_type):
         otp_str = f'{otp_type}_{email}_otp'
         print('otp_str: ', otp_str)
         session[otp_str] = (otp, expires_at)
-        print(session[otp_str])
+        print(session[otp_str], '<<< Actual Dictionary >>>')
         user = User.query.filter_by(email = email).first()
         mail =  EmailManager(email_to=email, payload=otp, user=user)
         if otp_type == otp_type_list[0]: 
