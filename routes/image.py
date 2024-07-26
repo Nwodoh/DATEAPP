@@ -5,8 +5,9 @@ from app import db
 
 image = Blueprint('image', __name__)
 
+@image.route('/', methods=['GET'])
 @image.route('/<img_url>', methods=['GET'])
-def get_otp(img_url):
+def get_otp(img_url=''):
     try:
         image_link = f'{Config.USER_IMAGES_UPLOAD_FOLDER}/{img_url}'
         print(image_link)

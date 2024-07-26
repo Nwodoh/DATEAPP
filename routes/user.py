@@ -6,6 +6,7 @@ from app import db
 from config import Config
 from models.User import User
 from utils.helpers import set_err_args, assign_res, fromIsoStr, haversine
+from utils.ImageManager import ImageManager
 
 user = Blueprint('user', __name__)
 
@@ -30,10 +31,10 @@ def update_me():
         email = current_user.email
         if not email: raise EmailNotValidError()
 
-        # img_files = request.files.getlist('images')
-        # if len(img_files) > 0:
-        #     image_urls = ImageManager().save_images(img_files)
-        #     current_user.set_image_urls(image_urls)
+        img_files = request.files.getlist('images')
+        if len(img_files) > 0:
+            image_urls = ImageManager().save_images(img_files)
+            current_user.set_image_urls(image_urls)
 
         data = request.get_json()
         for key, value in data.items():
@@ -56,7 +57,7 @@ def update_me():
 
         db.session.commit()
 
-        return jsonify({**assign_res()})
+        return jsonify({**assign_res(), 'user': current_user.to_dict()})
     except EmailNotValidError:
         return jsonify({**assign_res('error'), 'message': 'Email is Invalid.'}), 400
     except Exception as err:
