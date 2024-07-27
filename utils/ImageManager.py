@@ -8,7 +8,7 @@ class ImageManager():
     def save_images(self, images:list=[]):
         image_urls = []
         for index, image in enumerate(images):
-            if image.filename == '':
+            if not image or not image.filename:
                 continue
             filename = f'/{index}-{time.time()}-{image.filename}'
             filepath =  Config.USER_IMAGES_UPLOAD_FOLDER + filename

@@ -43,7 +43,6 @@ def create_app():
 
     @socketio.on('connect')
     def handle_connect(user):
-        print(user)
         send('Connected to server', broadcast=True)
 
     @socketio.on('online')

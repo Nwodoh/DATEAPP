@@ -21,7 +21,6 @@ def get_otp(otp_type):
         otp = generate_otp()
         expires_at = set_time_from_now(20)
         otp_str = f'{otp_type}_{email}_otp'
-        print('otp_str: ', otp_str)
         session[otp_str] = (otp, expires_at)
         print(session[otp_str], '<<< Actual Dictionary >>>')
         user = User.query.filter_by(email = email).first()
@@ -49,7 +48,6 @@ def verify_otp(otp_type='signup'):
     email = valid.email
 
     otp_str = f'{otp_type}_{email}_otp'
-    print('otp_str: ', otp_str)
     otp_tuple = session.get(otp_str)
     print('otp_tuple: ', otp_tuple)
     if not otp_tuple or len(otp_tuple) < 2: raise Exception('OTP not set', 400)
@@ -93,7 +91,6 @@ def login():
         valid = validate_email(email)
         email = valid.email
         password = request.json.get('password')
-        print(email, password)
 
         user = User.query.filter_by(email = email).first()
         
@@ -118,16 +115,12 @@ def logout():
 @auth.route('/reset-password', methods=['POST'])
 def reset_password():
     try:
-        print('here')
         email = request.json.get('email')
-        print(email, '/////')
         if not email: raise EmailNotValidError()
         valid = validate_email(email)
         email = valid.email
         password = request.json.get('password')
-        print(password, '/////')
         password_confirm = request.json.get('passwordConfirm')
-        print(password_confirm, '/////')
         min_pass_len = 4
         max_pass_len = 25
 

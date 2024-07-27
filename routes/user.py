@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, session, request
 from flask_login import current_user, login_required
+from PIL import Image
 from sqlalchemy.exc import IntegrityError
 from email_validator import EmailNotValidError
 from app import db
@@ -7,6 +8,8 @@ from config import Config
 from models.User import User
 from utils.helpers import set_err_args, assign_res, fromIsoStr, haversine
 from utils.ImageManager import ImageManager
+import io
+import base64
 
 user = Blueprint('user', __name__)
 
@@ -31,11 +34,25 @@ def update_me():
         email = current_user.email
         if not email: raise EmailNotValidError()
 
-        img_files = request.files.getlist('images')
+        profile_image = request.json.get('profileImage')
+        background_image = request.json.get('backgroundImage')
+
+        if profile_image and profile_image.get('image') and profile_image.get('filename'): 
+            filename = profile_image.get('filename')
+            profile_image = base64.b64decode(profile_image.get('image'))
+            profile_image = Image.open(io.BytesIO(profile_image))
+            profile_image.filename = filename
+        if background_image and background_image.get('image') and background_image.get('filename'): 
+            filename = background_image.get('filename')
+            background_image = base64.b64decode(background_image.get('image'))
+            background_image = Image.open(io.BytesIO(background_image))
+            background_image.filename = filename
+
+        img_files = [profile_image, background_image]
+
         if len(img_files) > 0:
             image_urls = ImageManager().save_images(img_files)
-            current_user.set_image_urls(image_urls)
-
+            if len(image_urls): current_user.set_image_urls(image_urls)
         data = request.get_json()
         for key, value in data.items():
             if key in Config.USER_RESTRICTED_FIELDS: continue
@@ -61,6 +78,7 @@ def update_me():
     except EmailNotValidError:
         return jsonify({**assign_res('error'), 'message': 'Email is Invalid.'}), 400
     except Exception as err:
+        print(err)
         err_message, err_code = set_err_args(err.args)
         return jsonify({**assign_res('error'), 'message': err_message}), err_code
 

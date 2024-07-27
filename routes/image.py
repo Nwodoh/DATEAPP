@@ -10,7 +10,6 @@ image = Blueprint('image', __name__)
 def get_otp(img_url=''):
     try:
         image_link = f'{Config.USER_IMAGES_UPLOAD_FOLDER}/{img_url}'
-        print(image_link)
         return send_file(image_link)
     except Exception as err:
         image_404 = f'{Config.USER_IMAGES_UPLOAD_FOLDER}/not-found.jpg'
