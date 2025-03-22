@@ -16,7 +16,7 @@ class Config:
     ORIENTATIONS = ['male', 'female']
     UPLOAD_FOLDER = './uploads'
     INTERESTS = ['travel', 'football', 'walking', 'gym', 'movies', 'music', 'tatoos', 'coffee', 'netflix', 'shopping', 'outdoors', 'nightlife', 'food', 'sports', 'universities', 'nerd', 'beer', 'work', 'dogs', 'cats']
-    SENDGRID_API_KEY = ''
+    SENDGRID_API_KEY = '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'
 
     USER_IMAGES_UPLOAD_FOLDER = UPLOAD_FOLDER + f'/images/users'
     

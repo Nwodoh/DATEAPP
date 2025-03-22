@@ -36,4 +36,5 @@ class EmailManager():
         subject = f'DateMap Reset Password Token {otp}' 
         message = f"Here's your forgot password {otp}"
         response = self.send_mail(subject, message)
+        print(otp)
         return response
