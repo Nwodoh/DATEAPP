@@ -63,6 +63,16 @@ class User(db.Model, UserMixin):
     def set_image_urls(self, image_urls:list=[]):
         self.image_urls = json.dumps(image_urls)
 
+    def set_image_url(self, image_index:int, image_url:any=''):
+        image_list = json.loads(self.image_urls) if self.image_urls else ['', '']  # Convert from JSON
+
+        while len(image_list) <= image_index:
+            image_list.append(None)
+
+        print(image_list)
+        image_list[image_index] = image_url
+        self.image_urls = json.dumps(image_list)
+
     def set_interests(self, interests:list=[]):
         self.interests = json.dumps(interests)
 

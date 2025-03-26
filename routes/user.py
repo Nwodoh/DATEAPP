@@ -34,8 +34,8 @@ def update_me():
         email = current_user.email
         if not email: raise EmailNotValidError()
 
-        profile_image = request.json.get('profileImage')
-        background_image = request.json.get('backgroundImage')
+        profile_image = request.json.get('profileImage') or ''
+        background_image = request.json.get('backgroundImage') or ''
 
         if profile_image and profile_image.get('image') and profile_image.get('filename'): 
             filename = profile_image.get('filename')
@@ -52,7 +52,10 @@ def update_me():
 
         if len(img_files) > 0:
             image_urls = ImageManager().save_images(img_files)
-            if len(image_urls): current_user.set_image_urls(image_urls)
+            while len(image_urls) <= 2: image_urls.append(None)
+            if len(image_urls): 
+                if(profile_image): current_user.set_image_url(0, image_urls[0])
+                if(background_image): current_user.set_image_url(1, image_urls[1] or image_urls[0])
         data = request.get_json()
         for key, value in data.items():
             if key in Config.USER_RESTRICTED_FIELDS: continue
