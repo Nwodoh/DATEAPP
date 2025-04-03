@@ -1,5 +1,3 @@
-import os
-import json
 from flask_socketio import SocketIO, send, join_room, emit
 from flask import Flask
 from flask_cors import CORS
@@ -8,11 +6,8 @@ from firebase_admin import credentials, firestore
 from config import config_by_name
 from utils.helpers import get_chat_room_key
 
-# Read Firebase credentials from environment variable
-firebase_credentials = json.loads(os.getenv("FIREBASE_CREDENTIALS"))
-
 # Initialize Firebase
-cred = credentials.Certificate(firebase_credentials)
+cred = credentials.Certificate("datemap-72c6a-firebase.json")  # Update this
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
