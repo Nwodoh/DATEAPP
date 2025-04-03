@@ -1,6 +1,8 @@
 import os
 import re
-import secrets
+from dotenv import load_dotenv
+
+load_dotenv(".env")  # Load the variables from the file
 
 class Config:
     DB_NAME = "database.db"
@@ -16,7 +18,12 @@ class Config:
     ORIENTATIONS = ['male', 'female']
     UPLOAD_FOLDER = './uploads'
     INTERESTS = ['travel', 'football', 'walking', 'gym', 'movies', 'music', 'tatoos', 'coffee', 'netflix', 'shopping', 'outdoors', 'nightlife', 'food', 'sports', 'universities', 'nerd', 'beer', 'work', 'dogs', 'cats']
-    SENDGRID_API_KEY = ''
+    FIREBASE_WEB_API_URL = f'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={os.getenv("FIREBASE_WEB_API_KEY")}'
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = True
+    JWT_COOKIE_HTTPONLY = True
+    JWT_COOKIE_SAMESITE = "None"
 
     USER_IMAGES_UPLOAD_FOLDER = UPLOAD_FOLDER + f'/images/users'
     

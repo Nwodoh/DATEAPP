@@ -1,7 +1,5 @@
-from flask import Blueprint, send_file, jsonify, session, request 
-from flask_login import login_required
+from flask import Blueprint, send_file
 from config import Config
-from app import db
 
 image = Blueprint('image', __name__)
 

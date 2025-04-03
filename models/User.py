@@ -69,7 +69,6 @@ class User(db.Model, UserMixin):
         while len(image_list) <= image_index:
             image_list.append(None)
 
-        print(image_list)
         image_list[image_index] = image_url
         self.image_urls = json.dumps(image_list)
 
