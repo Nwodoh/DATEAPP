@@ -7,7 +7,7 @@ from config import config_by_name
 from utils.helpers import get_chat_room_key
 
 # Initialize Firebase
-cred = credentials.Certificate("datemap-72c6a-firebase.json")  # Update this
+cred = credentials.Certificate("datemap2-firebase-adminsdk-fbsvc-571603ab52.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
