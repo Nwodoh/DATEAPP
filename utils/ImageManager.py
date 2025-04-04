@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from config import Config
-
+# Saves images in the /uploads folder and returns the path / URL
 class ImageManager():
     def save_images(self, images:list=[]):
         image_urls = []

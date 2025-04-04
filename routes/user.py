@@ -11,6 +11,10 @@ import base64
 
 user = Blueprint('user', __name__)
 
+
+# Handles Any route from the frontend that starts with: `/api/v1/user`
+# Routes for getting, updating, liking and so on. Anything solely user related. 
+
 @user.route('/user/', defaults={'user_id': None}, methods=['GET'])
 @user.route('/user/<user_id>', methods=['GET'])
 @firebase_auth_required

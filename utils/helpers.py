@@ -5,6 +5,9 @@ from datetime import datetime, timedelta, timezone, date
 import time
 
 
+# contains different function used for helpers within other functions through out the application.
+
+
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0  # Earth radius in kilometers
 

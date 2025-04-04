@@ -2,6 +2,8 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from config import Config
 
+# This handles sending mails and OTP
+
 class EmailManager():
     def __init__(self, email_to:any, payload:any=''):
         self.email_to=email_to

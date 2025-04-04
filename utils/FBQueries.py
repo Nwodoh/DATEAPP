@@ -17,6 +17,8 @@ db = firestore.client()
 users_ref = db.collection("users")
 chats_ref = db.collection("chats")
 
+# Manages all request and updates to the Firestore db and also contains an firebase_auth_required decorator function used in checking if a user is loggedin.
+
 class FBQueries:
     @staticmethod
     def user_dict(user, with_password=False):

@@ -8,6 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
+# Handles Any route from the frontend that starts with: `/api/v1/auth`
+# Routes for logging in, signinup, reset password e.t.c. Anything solely auth related.
+
 verification_type_list = ['signup', 'reset_password']
 @auth.route('/verification/<verification_type>', methods=['POST'])
 def get_otp(verification_type):

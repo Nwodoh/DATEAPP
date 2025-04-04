@@ -3,6 +3,9 @@ from config import Config
 
 image = Blueprint('image', __name__)
 
+# Handles Any route from the frontend that starts with: `/api/v1/image`
+# It's what returns any image that is stored in the /uploads folder and if no image was found for the received URL it returns a default image
+
 @image.route('/', methods=['GET'])
 @image.route('/<img_url>', methods=['GET'])
 def get_otp(img_url=''):

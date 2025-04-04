@@ -6,6 +6,11 @@ from firebase_admin import credentials, firestore
 from config import config_by_name
 from utils.helpers import get_chat_room_key
 
+# This code sets up the Flask application with SocketIO for real-time chats, Firebase DB. 
+# It registers blueprints for the app routes including authentication, user, chat, and image handling. 
+# It also defines multiple SocketIO event handlers for user connection, chat activation, and message sending, 
+# enabling real-time updates and messaging between users.
+
 # Initialize Firebase
 cred = credentials.Certificate("datemap2-firebase-adminsdk-fbsvc-571603ab52.json")
 firebase_admin.initialize_app(cred)

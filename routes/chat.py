@@ -4,6 +4,9 @@ from utils.helpers import set_err_args, assign_res, generate_chat_id
 
 chat = Blueprint('chat', __name__)
 
+# Handles Any route from the frontend that starts with: `/api/v1/chat`
+# Routes for sending, retieving chats. Anything solely chat related.
+
 @chat.route('/', methods=['POST'])
 @firebase_auth_required
 def send_chat():
